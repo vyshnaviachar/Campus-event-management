@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Campus Event Management</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    *{box-sizing:border-box} body{font-family:Arial, sans-serif;background:#f7f7fb;margin:0}
+    header{padding:16px 24px;background:#111827;color:#fff}
+    main{display:grid;gap:16px;grid-template-columns:320px 1fr;padding:16px}
+    section, .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px}
+    h2{margin:0 0 10px;font-size:18px}
+    label{display:block;font-size:12px;margin:10px 0 4px;color:#374151}
+    input, select{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:8px}
+    button{margin-top:10px;padding:10px 12px;border:0;border-radius:10px;background:#2563eb;color:#fff;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .grid{display:grid;gap:10px}
+    .two{grid-template-columns:1fr 1fr}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid #e5e7eb;padding:8px;font-size:14px;text-align:left}
+    .row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media (max-width: 980px){ main{grid-template-columns:1fr} .row{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header><h1>Campus Event Management</h1></header>
+
+  <main>
+    <!-- Left column: forms -->
+    <section>
+      <h2>Add Event</h2>
+      <div class="grid">
+        <label>Title</label><input id="ev_title" placeholder="Hackathon" />
+        <label>Description</label><input id="ev_desc" placeholder="Coding marathon" />
+        <div class="two">
+          <div><label>Date</label><input id="ev_date" type="date" /></div>
+          <div>
+            <label>Type</label>
+            <select id="ev_type">
+              <option>Workshop</option><option>Fest</option><option>Seminar</option><option>Hackathon</option><option selected>General</option>
+            </select>
+          </div>
+        </div>
+        <label>College ID</label><input id="ev_college" placeholder="C-001" />
+        <button id="btn_add_event">Create Event</button>
+      </div>
+      <hr style="margin:16px 0">
+      <h2>Add Student</h2>
+      <div class="grid">
+        <label>Name</label><input id="st_name" placeholder="Vaishnavi HP" />
+        <label>Email</label><input id="st_email" placeholder="vaishu@example.com" />
+        <label>College ID</label><input id="st_college" placeholder="C-001" />
+        <button id="btn_add_student">Create Student</button>
+      </div>
+      <hr style="margin:16px 0">
+      <h2>Register for Event</h2>
+      <div class="grid">
+        <label>Student</label><select id="reg_student"></select>
+        <label>Event</label><select id="reg_event"></select>
+        <button id="btn_register">Register</button>
+      </div>
+      <hr style="margin:16px 0">
+      <h2>Attendance & Feedback</h2>
+      <div class="grid">
+        <label>Registration</label><select id="af_reg"></select>
+        <div class="two">
+          <button id="btn_present">Mark Present</button>
+          <button id="btn_absent">Mark Absent</button>
+        </div>
+        <label>Feedback (1–5)</label><input id="af_feedback" type="number" min="1" max="5" />
+        <button id="btn_feedback">Submit Feedback</button>
+      </div>
+    </section>
+
+    <!-- Right column: data & reports -->
+    <div class="grid">
+      <div class="card">
+        <h2>Events</h2>
+        <div class="two">
+          <div>
+            <label>Filter by type</label>
+            <select id="flt_type">
+              <option value="">All</option>
+              <option>Workshop</option><option>Fest</option><option>Seminar</option><option>Hackathon</option><option>General</option>
+            </select>
+          </div>
+          <div>
+            <label>College ID</label>
+            <input id="flt_college" placeholder="(optional)" />
+          </div>
+        </div>
+        <button id="btn_refresh_events">Refresh</button>
+        <table id="tbl_events"><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Date</th><th>College</th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div class="card">
+        <h2>Students</h2>
+        <button id="btn_refresh_students">Refresh</button>
+        <table id="tbl_students"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>College</th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div class="card">
+        <h2>Registrations</h2>
+        <button id="btn_refresh_regs">Refresh</button>
+        <table id="tbl_regs"><thead><tr><th>ID</th><th>Event</th><th>Student</th><th>Present</th><th>Feedback</th><th>Created</th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div class="card">
+        <h2>Reports</h2>
+        <div class="row">
+          <div>
+            <strong>Event Popularity</strong>
+            <table id="r_pop"><thead><tr><th>Event</th><th>Type</th><th>Registrations</th></tr></thead><tbody></tbody></table>
+          </div>
+          <div>
+            <strong>Attendance %</strong>
+            <table id="r_att"><thead><tr><th>Event</th><th>%</th><th>T/A</th></tr></thead><tbody></tbody></table>
+          </div>
+          <div>
+            <strong>Avg Feedback</strong>
+            <table id="r_fb"><thead><tr><th>Event</th><th>Average</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <strong>Top Students</strong>
+          <table id="r_top"><thead><tr><th>Name</th><th>Attended</th><th>Registrations</th></tr></thead><tbody></tbody></table>
+        </div>
+        <button id="btn_refresh_reports" style="margin-top:10px">Refresh Reports</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const BASE = "http://127.0.0.1:5000";
+
+    async function api(path, options={}) {
+      const res = await fetch(BASE + path, { headers: { "Content-Type": "application/json" }, ...options });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || (res.status + " " + res.statusText));
+      }
+      const ct = res.headers.get("content-type") || "";
+      return ct.includes("application/json") ? res.json() : {};
+    }
+
+    // ---- load lists ----
+    async function loadEvents() {
+      const type = document.getElementById("flt_type").value;
+      const college = document.getElementById("flt_college").value.trim();
+      const qs = new URLSearchParams();
+      if (type) qs.set("type", type);
+      if (college) qs.set("college_id", college);
+      const data = await api("/api/events" + (qs.toString() ? ("?" + qs.toString()) : ""));
+      const tb = document.querySelector("#tbl_events tbody"); tb.innerHTML = "";
+      const opt = document.getElementById("reg_event"); opt.innerHTML = "";
+      data.forEach(e => {
+        tb.insertAdjacentHTML("beforeend", `<tr><td>${e.id}</td><td>${e.title}</td><td>${e.type}</td><td>${e.date}</td><td>${e.college_id}</td></tr>`);
+        opt.insertAdjacentHTML("beforeend", `<option value="${e.id}">#${e.id} • ${e.title}</option>`);
+      });
+    }
+
+    async function loadStudents() {
+      const data = await api("/api/students");
+      const tb = document.querySelector("#tbl_students tbody"); tb.innerHTML = "";
+      const opt = document.getElementById("reg_student"); opt.innerHTML = "";
+      data.forEach(s => {
+        tb.insertAdjacentHTML("beforeend", `<tr><td>${s.id}</td><td>${s.name}</td><td>${s.email}</td><td>${s.college_id}</td></tr>`);
+        opt.insertAdjacentHTML("beforeend", `<option value="${s.id}">#${s.id} • ${s.name}</option>`);
+      });
+    }
+
+    async function loadRegistrations() {
+      const data = await api("/api/registrations");
+      const tb = document.querySelector("#tbl_regs tbody"); tb.innerHTML = "";
+      const regSel = document.getElementById("af_reg"); regSel.innerHTML = "";
+      data.forEach(r => {
+        tb.insertAdjacentHTML("beforeend",
+          `<tr><td>${r.id}</td><td>${r.event_title}</td><td>${r.student_name}</td><td>${r.attendance ? "Yes" : "No"}</td><td>${r.feedback ?? "-"}</td><td>${r.created_at}</td></tr>`);
+        regSel.insertAdjacentHTML("beforeend", `<option value="${r.id}">#${r.id} • ${r.student_name} → ${r.event_title}</option>`);
+      });
+    }
+
+    // ---- reports ----
+    async function loadReports() {
+      const pop = await api("/api/reports/registrations");
+      const att = await api("/api/reports/attendance");
+      const fb  = await api("/api/reports/feedback");
+      const top = await api("/api/reports/top-students?limit=3");
+
+      const tb1 = document.querySelector("#r_pop tbody"); tb1.innerHTML = "";
+      pop.forEach(x => tb1.insertAdjacentHTML("beforeend", `<tr><td>${x.title}</td><td>${x.type}</td><td>${x.registrations}</td></tr>`));
+
+      const tb2 = document.querySelector("#r_att tbody"); tb2.innerHTML = "";
+      att.forEach(x => tb2.insertAdjacentHTML("beforeend", `<tr><td>${x.title}</td><td>${x.attendance_pct}%</td><td>${x.attended}/${x.total}</td></tr>`));
+
+      const tb3 = document.querySelector("#r_fb tbody"); tb3.innerHTML = "";
+      fb.forEach(x => tb3.insertAdjacentHTML("beforeend", `<tr><td>${x.title}</td><td>${x.avg_feedback}</td></tr>`));
+
+      const tb4 = document.querySelector("#r_top tbody"); tb4.innerHTML = "";
+      top.forEach(x => tb4.insertAdjacentHTML("beforeend", `<tr><td>${x.name}</td><td>${x.events_attended ?? 0}</td><td>${x.registrations ?? 0}</td></tr>`));
+    }
+
+    // ---- actions ----
+    document.getElementById("btn_add_event").onclick = async () => {
+      try {
+        const body = {
+          title: document.getElementById("ev_title").value.trim(),
+          description: document.getElementById("ev_desc").value.trim(),
+          date: document.getElementById("ev_date").value,
+          type: document.getElementById("ev_type").value,
+          college_id: document.getElementById("ev_college").value.trim() || "C-001"
+        };
+        await api("/api/events", { method: "POST", body: JSON.stringify(body) });
+        await loadEvents(); alert("Event created");
+      } catch (e) { alert(e.message); }
+    };
+
+    document.getElementById("btn_add_student").onclick = async () => {
+      try {
+        const body = {
+          name: document.getElementById("st_name").value.trim(),
+          email: document.getElementById("st_email").value.trim(),
+          college_id: document.getElementById("st_college").value.trim()
+        };
+        await api("/api/students", { method: "POST", body: JSON.stringify(body) });
+        await loadStudents(); alert("Student created");
+      } catch (e) { alert(e.message); }
+    };
+
+    document.getElementById("btn_register").onclick = async () => {
+      try {
+        const body = {
+          student_id: +document.getElementById("reg_student").value,
+          event_id: +document.getElementById("reg_event").value
+        };
+        await api("/api/register", { method: "POST", body: JSON.stringify(body) });
+        await loadRegistrations(); await loadReports();
+        alert("Registered");
+      } catch (e) { alert(e.message); }
+    };
+
+    document.getElementById("btn_present").onclick = async () => {
+      const id = +document.getElementById("af_reg").value;
+      try { await api("/api/attendance", { method: "POST", body: JSON.stringify({ registration_id: id, present: 1 }) });
+        await loadRegistrations(); await loadReports();
+      } catch (e) { alert(e.message); }
+    };
+    document.getElementById("btn_absent").onclick = async () => {
+      const id = +document.getElementById("af_reg").value;
+      try { await api("/api/attendance", { method: "POST", body: JSON.stringify({ registration_id: id, present: 0 }) });
+        await loadRegistrations(); await loadReports();
+      } catch (e) { alert(e.message); }
+    };
+
+    document.getElementById("btn_feedback").onclick = async () => {
+      const id = +document.getElementById("af_reg").value;
+      const f  = +document.getElementById("af_feedback").value;
+      try { await api("/api/feedback", { method: "POST", body: JSON.stringify({ registration_id: id, feedback: f }) });
+        await loadRegistrations(); await loadReports();
+      } catch (e) { alert(e.message); }
+    };
+
+    document.getElementById("btn_refresh_events").onclick = loadEvents;
+    document.getElementById("btn_refresh_students").onclick = loadStudents;
+    document.getElementById("btn_refresh_regs").onclick = loadRegistrations;
+    document.getElementById("btn_refresh_reports").onclick = loadReports;
+
+    // initial load
+    (async () => {
+      await Promise.all([loadEvents(), loadStudents(), loadRegistrations()]);
+      await loadReports();
+    })();
+  </script>
+</body>
+</html>
